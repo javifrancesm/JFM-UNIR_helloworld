@@ -21,6 +21,7 @@ pipeline {
 							unstash name:'code'
 							bat '''
 								set PYTHONPATH=%WORKSPACE%
+								cd "C:\Jenkins-Agent\workspace\JFM-UNIR-CP 1.2 - Reto 1"
 								pytest --junitxml=result-unit.xml test\unit
 							'''
 							junit 'result-unit.xml'
