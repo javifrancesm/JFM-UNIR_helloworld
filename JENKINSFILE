@@ -1,80 +1,63 @@
 pipeline {
-    agent any
+	agent any
 
-    options { skipDefaultCheckout() }
+	options { skipDefaultCheckout() }
 
-     stages {
-        stage('Get Code') {
-            steps {
-                // Obtener código del repo
-                git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git'
-	            echo WORKSPACE
-                bat 'dir'
-                stash name:'code', includes:'**'
+	stages {
+
+		stage('Get Code') {
+			steps {
+				git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git'
+				echo WORKSPACE
+				bat 'dir'
+				stash name:'code', includes:'**'
 				deleteDir()
-            }
-        }
-        
-      stage('Tests')
-        {
-            parallel
-            {
-                stage('Unit') {
-                    steps {
-                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                            unstash name:'code'
-                            sh '''
-                                ls -la
-                                export PYTHONPATH=${WORKSPACE}
-                                cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
+			}
+		}
+
+		stage('Tests') {
+			parallel {
+			
+				stage('Unit') {
+					steps {
+						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+							unstash name:'code'
+							sh '''
+								ls -la
+								export PYTHONPATH=${WORKSPACE}
+								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
 								pytest --junitxml=result-unit.xml test/unit
-                            '''
-                            stash name:'unit-res', includes:'result-unit.xml'
+							'''
+							stash name:'unit-res', includes:'result-unit.xml'
 							deleteDir()
-                       }
-                    }
-                }   
-                
-                
-                stage('Rest') {
-                    steps {
-                      catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                        unstash name:'code'
-                        sh '''
-                            export FLASK_APP=app/api.py                    
-							
-							cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
-                            flask run &
+						}
+					}
+				}
 
-                            sleep 5
+				stage('Rest') {
+					steps {
+						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+							unstash name:'code'
+							sh '''
+								export FLASK_APP=app/api.py
+								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
+								flask run &
+								sleep 5
+								java -jar /home/wiremock-jre8-standalone-2.28.0.jar --port 9090 --root-dir "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2/test/wiremock" &
+								export PYTHONPATH=${WORKSPACE}
+								sleep 10
+								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
+								pytest --junitxml=result-rest.xml test/rest
+							'''
+							stash name:'rest-res', includes:'result-rest.xml'
+							// stash name:'rest-res', includes:'**' -> Con solo 1 linux-agent es la forma de que no se "pisen".
+							deleteDir()
+						}
+					}
+				}
 
-							java -jar /home/wiremock-jre8-standalone-2.28.0.jar --port 9090 --root-dir "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2/test/wiremock" &
+			}
+		}
 
-                            export PYTHONPATH=${WORKSPACE}
-                            
-                            sleep 10
-
-							cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
-							pytest --junitxml=result-rest.xml test/rest
-                        '''
-						stash name:'rest-res', includes:'result-rest.xml'
-						// stash name:'rest-res', includes:'**' -> Con solo 1 linux-agent es la forma de que no se "pisen".
-						deleteDir()
-                      }
-                    }    
-                }                
-                
-            }
-        }
-
-        stage('Results') {
-            steps {
-                unstash name:'unit-res'
-                unstash name:'rest-res'
-                junit 'result*.xml'
-				deleteDir()
-            }
-        }
-     
-    }
+	}
 }
