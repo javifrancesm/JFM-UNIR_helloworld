@@ -19,10 +19,9 @@ pipeline {
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
-							sh '''
-								export PYTHONPATH=${WORKSPACE}
-								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.2/CP 1.2 - Reto 1"
-								pytest --junitxml=result-unit.xml test/unit
+							bat '''
+								set PYTHONPATH=%WORKSPACE%
+								pytest --junitxml=result-unit.xml test\unit
 							'''
 							junit 'result-unit.xml'
 							deleteDir()
