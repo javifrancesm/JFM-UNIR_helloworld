@@ -14,26 +14,22 @@ pipeline {
 				deleteDir()
 			}
 		}
-
-		stage('Tests') {
-			parallel {
 			
 				stage('Unit') {
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
 							sh '''
-								ls -la
 								export PYTHONPATH=${WORKSPACE}
-								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.1/CP 1.1 - Reto 2"
+								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.2/CP 1.2 - Reto 1"
 								pytest --junitxml=result-unit.xml test/unit
 							'''
-							stash name:'unit-res', includes:'result-unit.xml'
+							junit 'result-unit.xml'
 							deleteDir()
 						}
 					}
 				}
-
+/*
 				stage('Rest') {
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
@@ -55,9 +51,6 @@ pipeline {
 						}
 					}
 				}
-
-			}
-		}
-
+*/
 	}
 }
