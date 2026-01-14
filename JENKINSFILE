@@ -56,7 +56,29 @@ pipeline {
 				}
 				}
 
-/* */
+				stage('Rest') {
+					agent {label 'linux'}
+					steps {
+						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+							unstash name:'code'
+							sh '''
+								export FLASK_APP=app/api.py
+								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.2/CP 1.2 - Reto 1"
+								flask run &
+								sleep 5
+								java -jar /home/wiremock-jre8-standalone-2.28.0.jar --port 9090 --root-dir "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.2/CP 1.2 - Reto 1/test/wiremock" &
+								export PYTHONPATH=${WORKSPACE}
+								sleep 5
+								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.2/CP 1.2 - Reto 1"
+								pytest --junitxml=result-rest.xml test/rest
+							'''
+							junit 'result-rest.xml'
+							deleteDir()
+						}
+					}
+				}
+
+/**/
 
 	}
 }
