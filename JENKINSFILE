@@ -78,7 +78,27 @@ pipeline {
 					}
 				}
 
-/**/
+				stage('Performance') {
+					steps {
+						catchError(buildResult: '', stageResult: '') {
+								unstash name:'code'
+
+								junit 'result-'
+								deleteDir()
+						}
+					}
+				}
+
+				stage('Coverage') {
+					steps {
+						catchError(buildResult: '', stageResult: '') {
+								unstash name:'code'
+
+								junit 'result-'
+								deleteDir()
+						}
+					}
+				}
 
 	}
 }
