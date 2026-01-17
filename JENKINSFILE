@@ -33,6 +33,7 @@ pipeline {
 				parallel {
 
 					stage('Static') {
+						agent {label 'linux'}
 						steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
