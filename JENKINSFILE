@@ -54,7 +54,7 @@ pipeline {
 				}
 
 				stage('Rest') {
-					agent {label 'linux'}
+					agent {label 'linux-2'}
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
