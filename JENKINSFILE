@@ -29,9 +29,8 @@ pipeline {
 					}
 				}
 
-				stage('Static&Security') {
-				parallel {
-				catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+				stage('Static&Security')
+
 
 					stage('Static') {
 						steps {
@@ -50,9 +49,8 @@ pipeline {
 							deleteDir()
 						}
 					}
-				}
-				}
-				}
+				
+				
 
 				stage('Rest') {
 					agent {label 'linux'}
