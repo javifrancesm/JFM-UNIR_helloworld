@@ -29,7 +29,7 @@ pipeline {
 					}
 				}
 
-				stage('Static&Security')
+			/*	stage('Static&Security')	*/
 
 
 					stage('Static') {
