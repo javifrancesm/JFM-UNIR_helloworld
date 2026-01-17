@@ -36,15 +36,12 @@ pipeline {
 						steps {
 							unstash name:'code'
 							bat 'flake8 --exit-zero --format=pylint app >flake8.out'
-							recordIssues (tools: [flake8(pattern: 'flake8.out')],
+							recordIssues tools: [flake8(pattern: 'flake8.out')],
 								qualityGates: [
 									[threshold: 8, type: 'TOTAL', criticality: 'UNSTABLE'],
 									[threshold: 10, type: 'TOTAL', criticality: 'FAILURE']
 								],
-								unhealthy: 10,
-								healthy: 0,
-								sourceCodeRetention: 'LAST_BUILD'
-							)
+								unhealthy: 10
 							deleteDir()
 						}
 					}
