@@ -38,7 +38,7 @@ pipeline {
 							bat 'flake8 --exit-zero --format=pylint app >flake8.out'
 							recordIssues enabledForFailure: true, tools: [flake8(name: 'Flake8', pattern: 'flake8.out')],
 								qualityGates: [
-									[threshold: 10, type: 'TOTAL', failure: true],
+									[threshold: 10, type: 'TOTAL', fail: true],
 									[threshold: 8, type: 'TOTAL', unstable: true]
 								]
 							deleteDir()
