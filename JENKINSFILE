@@ -29,8 +29,8 @@ pipeline {
 					}
 				}
 
-			/*	stage('Static&Security')	*/
-
+				stage('Static&Security') {
+				parallel {
 
 					stage('Static') {
 						steps {
@@ -44,6 +44,7 @@ pipeline {
 					}
 
 					stage('Security') {
+						agent {label 'linux'}
 						steps {
 							catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 								unstash name:'code'
@@ -53,8 +54,8 @@ pipeline {
 							}
 						}
 					}
-				
-				
+				}
+				}
 
 				stage('Rest') {
 					agent {label 'linux'}
