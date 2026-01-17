@@ -36,11 +36,7 @@ pipeline {
 						steps {
 							unstash name:'code'
 							bat 'flake8 --exit-zero --format=pylint app >flake8.out'
-							recordIssues enabledForFailure: true, tools: [flake8(name: 'Flake8', pattern: 'flake8.out')],
-								qualityGates: [
-									[threshold: 10, type: 'TOTAL', fail: true],
-									[threshold: 8, type: 'TOTAL', unstable: true]
-								]
+							
 							deleteDir()
 						}
 					}
@@ -49,7 +45,7 @@ pipeline {
 						steps {
 							catchError(buildResult: '', stageResult: '') {
 								unstash name:'code'
-
+								recordIssues qualityGates: [[integerThreshold: 8, threshold: 8.0, type: 'TOTAL'], [criticality: 'FAILURE', integerThreshold: 10, threshold: 10.0, type: 'TOTAL']], sourceCodeRetention: 'LAST_BUILD', tools: [flake8(pattern: 'flake8.out')]
 								junit 'result-'
 								deleteDir()
 							}
