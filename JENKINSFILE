@@ -42,7 +42,7 @@ pipeline {
 					}
 
 					stage('Security') {
-						agent {label 'linux'}
+						agent {label 'windows'}
 						steps {
 							unstash name:'code'
 							bat 'bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
@@ -54,7 +54,7 @@ pipeline {
 				}
 
 				stage('Rest') {
-					agent {label 'linux-2'}
+					agent {label 'linux'}
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
