@@ -54,6 +54,12 @@ pipeline {
 				}
 				}
 
+				stage('Clean') {
+					steps {
+						deleteDir()
+					}
+				}
+				
 				stage('Rest') {
 					agent {label 'linux'}
 					steps {
