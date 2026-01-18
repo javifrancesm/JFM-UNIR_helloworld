@@ -31,7 +31,7 @@ pipeline {
 					}
 				}
 
-/*				stage('Static') {
+				stage('Static') {
 					steps {
 						unstash name:'code'
 						bat 'flake8 --exit-zero --format=pylint app >flake8.out'
@@ -48,7 +48,7 @@ pipeline {
 						deleteDir()
 					}
 				}
-*/
+
 				stage('Rest') {
 					agent {label 'linux'}
 					steps {
