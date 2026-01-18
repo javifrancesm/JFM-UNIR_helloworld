@@ -31,7 +31,7 @@ pipeline {
 					}
 				}
 
-		stage('Static&Security') {
+		stage('Static&Security&Coverage') {
 		parallel {
 
 				stage('Static') {
