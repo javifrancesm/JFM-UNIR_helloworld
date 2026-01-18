@@ -1,7 +1,7 @@
 pipeline {
 	agent any
 
-	options { skipDefaultCheckout() failFast (false) }
+	options { skipDefaultCheckout() }
 
 	stages {
 
@@ -33,6 +33,7 @@ pipeline {
 
 				stage('Static') {
 					steps {
+						allowFailure()
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
 							bat 'flake8 --exit-zero --format=pylint app >flake8.out'
