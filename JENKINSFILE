@@ -21,8 +21,10 @@ pipeline {
 							unstash name:'code'
 							bat '''
 								set PYTHONPATH=%WORKSPACE%
-								pytest --junitxml=result-unit.xml test\\unit
+								coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest --junitxml=result-unit.xml test\\unit
+								coverage xml
 							'''
+							stash name:'result-coverage', includes:'coverage.xml'
 							junit 'result-unit.xml'
 							deleteDir()
 						}
@@ -82,12 +84,8 @@ pipeline {
 */
 				stage('Coverage') {
 					steps {
-						unstash name:'code'
-						bat '''
-							set PYTHONPATH=${WORKSPACE}
-							coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
-							coverage xml
-						'''
+						unstash name:'result-coverage'
+						recordCoverage qualityGates: [[criticality: 'NOTE', integerThreshold: 85, metric: 'LINE', threshold: 85.0], [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0]], tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
 						deleteDir()
 					}
 				}
