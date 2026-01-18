@@ -79,7 +79,7 @@ pipeline {
 								set PYTHONPATH=%WORKSPACE%
 								set FLASK_APP=app\\api.py
 								ping -n 5 127.0.0.1
-								C:\\Users\\jfm-unir\\Desktop\\Software\\apache-jmeter-5.5\\bin\\jmeter -n -t test\\jmeter\\test-plan-cp1.jmx -f -l result-performance.jtl
+								C:\\Users\\jfm-unir\\Desktop\\Software\\apache-jmeter-5.5\\bin\\jmeter -n -t test\\jmeter\\test-plan-cp1.jmx -l result-performance.jtl
 							'''
 							perfReport sourceDataFiles: "result-performance.jtl"
 							deleteDir()
