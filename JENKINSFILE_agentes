@@ -6,6 +6,7 @@ pipeline {
 	stages {
 
 		stage('Get Code') {
+		agent {label 'windows'}
 			steps {
 				git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git'
 				echo WORKSPACE
@@ -18,12 +19,19 @@ pipeline {
 				deleteDir()
 			}
 		}
-			
+
+		stage('Unit&Rest') {
+		parallel {
+
 				stage('Unit') {
+				agent {label 'windows'}
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
+							echo WORKSPACE
 							bat '''
+								whoami
+								hostname
 								set PYTHONPATH=%WORKSPACE%
 								coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest --junitxml=result-unit.xml test\\unit
 								coverage xml
@@ -35,53 +43,15 @@ pipeline {
 					}
 				}
 
-		stage('Static&Security&Coverage') {
-		parallel {
-
-				stage('Static') {
+				stage('Rest') {
 				agent {label 'linux'}
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
-							sh 'flake8 --exit-zero --format=pylint app >flake8.out'
-							recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 8, type: 'TOTAL', unstable: true], [threshold: 10, type: 'TOTAL', unstable: false]], unhealthy: 10
-							deleteDir()
-						}
-					}
-				}
-
-				stage('Security') {
-				agent {label 'linux-2'}
-					steps {
-						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-							unstash name:'code'
-							sh 'bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
-							recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]], unhealthy: 4
-							deleteDir()
-						}
-					}
-				}
-
-				stage('Coverage') {
-				agent {label 'windows'}
-					steps {
-						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-							unstash name:'result-coverage'
-							recordCoverage qualityGates: [[criticality: 'NOTE', integerThreshold: 85, metric: 'LINE', threshold: 85.0], [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0], [criticality: 'NOTE', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0], [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]], tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
-							deleteDir()
-						}
-					}
-				}
-
-		}
-		}
-
-				stage('Rest') {
-					agent {label 'linux'}
-					steps {
-						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-							unstash name:'code'
+							echo WORKSPACE
 							sh '''
+								whoami
+								hostname
 								export FLASK_APP=app/api.py
 								cd "/home/Jenkins-Agent/workspace/JFM-UNIR/CP 1.2/CP 1.2 - Reto 1"
 								flask run &
@@ -97,12 +67,74 @@ pipeline {
 						}
 					}
 				}
+		}
+		}
 
-				stage('Performance') {
+		stage('Static&Security&Coverage') {
+		parallel {
+
+				stage('Static') {
+				agent {label 'linux'}
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
+							echo WORKSPACE
+							sh '''
+								whoami
+								hostname
+								flake8 --exit-zero --format=pylint app >flake8.out
+							'''
+							recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 8, type: 'TOTAL', unstable: true], [threshold: 10, type: 'TOTAL', unstable: false]], unhealthy: 10
+							deleteDir()
+						}
+					}
+				}
+
+				stage('Security') {
+				agent {label 'linux-2'}
+					steps {
+						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+							unstash name:'code'
+							echo WORKSPACE
+							sh '''
+							whoami
+							hostname
+							bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+							'''
+							recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]], unhealthy: 4
+							deleteDir()
+						}
+					}
+				}
+
+				stage('Coverage') {
+				agent {label 'windows'}
+					steps {
+						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+							unstash name:'result-coverage'
+							echo WORKSPACE
 							bat '''
+							whoami
+							hostname
+							'''
+							recordCoverage qualityGates: [[criticality: 'NOTE', integerThreshold: 85, metric: 'LINE', threshold: 85.0], [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0], [criticality: 'NOTE', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0], [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]], tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
+							deleteDir()
+						}
+					}
+				}
+
+		}
+		}
+
+				stage('Performance') {
+				agent {label 'windows'}
+					steps {
+						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+							unstash name:'code'
+							echo WORKSPACE
+							bat '''
+								whoami
+								hostname
 								set PYTHONPATH=%WORKSPACE%
 								set FLASK_APP=app\\api.py
 								ping -n 5 127.0.0.1
