@@ -9,11 +9,11 @@ pipeline {
 			steps {
 				git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git'
 				echo WORKSPACE
-        bat '''
-          whoami
-          hostname
-          dir
-        '''
+				bat '''
+     				whoami
+    				hostname
+          			dir
+        		'''
 				stash name:'code', includes:'**'
 				deleteDir()
 			}
