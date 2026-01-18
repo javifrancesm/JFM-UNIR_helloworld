@@ -33,7 +33,6 @@ pipeline {
 
 				stage('Static') {
 					steps {
-						allowFailure()
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
 							bat 'flake8 --exit-zero --format=pylint app >flake8.out'
@@ -45,6 +44,7 @@ pipeline {
 
 				stage('Security') {
 					steps {
+						allowFailure()
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'code'
 							bat 'bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
