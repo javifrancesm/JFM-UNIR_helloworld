@@ -79,17 +79,18 @@ pipeline {
 						}
 					}
 				}
-
+*/
 				stage('Coverage') {
 					steps {
-						catchError(buildResult: '', stageResult: '') {
-							unstash name:'code'
-
-							junit 'result-'
-							deleteDir()
-						}
+						unstash name:'code'
+						bat '''
+							set PYTHONPATH=${WORKSPACE}
+							coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
+							coverage xml
+						'''
+						deleteDir()
 					}
 				}
-*/
+
 	}
 }
