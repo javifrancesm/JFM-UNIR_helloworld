@@ -59,6 +59,7 @@ pipeline {
 				}
 
 				stage('Coverage') {
+				agent {label 'windows'}
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 							unstash name:'result-coverage'
