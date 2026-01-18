@@ -1,7 +1,7 @@
 pipeline {
 	agent any
 
-	options { skipDefaultCheckout() failFast false }
+	options { skipDefaultCheckout() failFast (false) }
 
 	stages {
 
