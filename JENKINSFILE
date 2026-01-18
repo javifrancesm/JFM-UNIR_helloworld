@@ -31,7 +31,7 @@ pipeline {
 					}
 				}
 
-/*				stage('Static') {
+				stage('Static') {
 					steps {
 						unstash name:'code'
 						bat 'flake8 --exit-zero --format=pylint app >flake8.out'
@@ -70,7 +70,7 @@ pipeline {
 						}
 					}
 				}
-*/
+
 				stage('Performance') {
 					steps {
 						catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
