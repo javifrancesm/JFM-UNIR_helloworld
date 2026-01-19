@@ -8,11 +8,7 @@ pipeline {
 		stage('Get Code') {
 		agent {label 'windows'}
 			steps {
-				git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git'
-				bat '''
-					git fetch --all
-					git checkout origin/feature_fix_coverage
-				'''
+				git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git', branch: 'feature_fix_coverage'
 				echo WORKSPACE
 				bat '''
      				whoami
