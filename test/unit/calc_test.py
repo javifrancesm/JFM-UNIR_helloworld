@@ -67,8 +67,5 @@ class TestCalculate(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, self.calc.divide, 2, 0)
 
 
-
-
-
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
