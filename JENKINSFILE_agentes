@@ -11,6 +11,7 @@ pipeline {
 				git 'https://github.com/javifrancesm/JFM-UNIR_helloworld.git'
 				bat '''
 					git fetch --all
+					git branch -r
 					git checkout feature_fix_coverage
 				'''
 				echo WORKSPACE
